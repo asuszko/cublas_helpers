@@ -65,7 +65,7 @@ if not os.path.exists(lib_path):
     os.makedirs(lib_path)
 
 # Compile into shared library
-build_cuda(src_path, path.join(lib_path,"cu_blas"),[
+build_cuda(src_path, path.join(lib_path,"cublas"),[
            "cublas_axpy.cu",
            "cublas_copy.cu",
            "cublas_dgmm.cu",

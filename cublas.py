@@ -5,6 +5,11 @@ __all__ = [
 
 import numpy as np
 
+# Path must be appended for Python 3.x
+import os
+import sys
+sys.path.append(os.path.join(os.getcwd(),"cublas_helpers"))
+
 # Local imports
 from cublas_import import (cublas_axpy,
                            cublas_copy,
@@ -16,10 +21,10 @@ from cublas_import import (cublas_axpy,
                            cublas_setstream)
 
 # Datatype identifier. cuBLAS currently supports these.
-blas_types = {0:np.dtype('f4'),
-              1:np.dtype('f8'),
-              2:np.dtype('c8'),
-              3:np.dtype('c16')}
+blas_types = {np.dtype('f4'):0,
+              np.dtype('f8'):1,
+              np.dtype('c8'):2,
+              np.dtype('c16'):3}
 
 
 class cublas(object):
@@ -63,7 +68,7 @@ class cublas(object):
         y : c_void_p
             Device pointer to vector y.
         
-        dtype : int, optional
+        dtype : np.dtype, optional
             Data type identifier specified by 'blas_types'.
         
         xinc : int, optional
@@ -78,12 +83,12 @@ class cublas(object):
         from alpha.
         """
         if dtype is None:
-            dtype = [k for k,v in blas_types.items() if v == alpha.dtype][0]
+            dtype = alpha.dtype
 
         cublas_axpy(self.handle, n, alpha,
                     x, xinc,
                     y, yinc,
-                    dtype)
+                    blas_types[np.dtype(dtype)])
 
                            
     def copy(self, n, x, y, dtype, xinc=1, yinc=1):
@@ -101,7 +106,7 @@ class cublas(object):
         y : c_void_p
             Device pointer to vector y.
         
-        dtype : int
+        dtype : np.dtype
             Data type identifier specified by 'blas_types'.
         
         xinc : int, optional
@@ -117,7 +122,7 @@ class cublas(object):
         cublas_copy(self.handle, n,
                     x, xinc,
                     y, yinc,
-                    dtype)
+                    blas_types[np.dtype(dtype)])
         
         
     def ewmm(self, x, y, dims, dtype):
@@ -140,13 +145,13 @@ class cublas(object):
             The dimensions of vectors x and y. Up to three dimensions 
             are currently supported.
             
-        dtype : int
+        dtype : np.dtype
             Data type identifier specified by 'blas_types'.
         """
         if type(dims) is list:
             dims = np.array(dims, dtype='i4')
         cublas_ewmm(x, y, dims,
-                    dtype,
+                    blas_types[np.dtype(dtype)],
                     self.stream)
 
 
@@ -163,7 +168,7 @@ class cublas(object):
         x : c_void_p
             Device pointer to vector x.
           
-        dtype : int
+        dtype : np.dtype
             Data type identifier specified by 'blas_types'.
             
         xinc : int, optional
@@ -174,11 +179,11 @@ class cublas(object):
         y : blas_types[dtype]
             Euclidean norm of the vector x.
         """
-        y = np.empty(1, dtype=blas_types[dtype])
+        y = np.empty(1, dtype=np.dtype(dtype))
         cublas_nrm2(self.handle, n,
                     x, xinc,
                     y,
-                    dtype)
+                    blas_types[np.dtype(dtype)])
         return y[0]
  
     
@@ -198,7 +203,7 @@ class cublas(object):
         x : c_void_p
             Device pointer to vector x.
         
-        dtype : int, optional
+        dtype : np.dtype, optional
             Data type identifier specified by 'blas_types'.
         
         xinc : int, optional
@@ -210,11 +215,11 @@ class cublas(object):
         from alpha.
         """
         if dtype is None:
-            dtype = [k for k,v in blas_types.items() if v == alpha.dtype][0]
+            dtype = alpha.dtype
             
         cublas_scal(self.handle, n, alpha,
                     x, xinc,
-                    dtype)
+                    blas_types[np.dtype(dtype)])
     
 
     @property

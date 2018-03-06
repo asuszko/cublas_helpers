@@ -9,7 +9,7 @@ import os
 import platform
 from numpy.ctypeslib import load_library
 
-def load_lib(lib_rel_dir, lib_fname):
+def load_cublas_lib(lib_rel_dir, lib_fname):
     wdir = os.path.dirname( __file__ )
     lib_path = os.path.abspath(os.path.join(wdir, lib_rel_dir))
     if platform.system() == 'Linux':

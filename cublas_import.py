@@ -13,18 +13,16 @@ __all__ = [
     "cublas_setstream",
 ]
 
-from numpy.ctypeslib import ndpointer
+from numpy.ctypeslib import load_library, ndpointer
 from ctypes import (c_bool,
                     c_int,
                     c_void_p,
                     c_size_t,
                     POINTER)
 
-# User imports
-from load_lib import load_lib
-
 # Load the shared library
-cublas_lib = load_lib("lib","cu_blas")
+from load_cublas_lib import load_cublas_lib
+cublas_lib = load_cublas_lib("lib","cublas")
 
 
 # Define argtypes for all functions to import
