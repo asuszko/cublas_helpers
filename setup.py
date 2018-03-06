@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
 
+import glob
 import os
-import os.path as path
 import platform
 import subprocess
+import sys
+
+__lib_name = "cublas"
 
 
 def build_cuda(wd, name, sources,
-               compile_args=["-arch=sm_50", "-m64", "-Xcompiler", "-fPIC", "-std=c++11"],
+               arch="-arch=sm_30",
+               compile_args=["-m64", "-Xcompiler", "-fPIC", "-std=c++11"],
+               cl_bin=None,
                include_dirs=[],
                library_dirs=[],
                libraries=[],
@@ -19,10 +24,9 @@ def build_cuda(wd, name, sources,
     
     if platform.system() == "Linux":
         ext = ".so"
-        cc_bin = None
+        cl_bin=[]
     elif platform.system() == "Windows":
         ext = ".dll"
-        cc_bin = r'"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin"'
     
     cwd = os.getcwd()
     os.chdir(wd)
@@ -37,13 +41,13 @@ def build_cuda(wd, name, sources,
     extra_compile_args = as_list(extra_compile_args)
 
     call_list = ["nvcc"]
+    call_list += [arch]
     call_list += compile_args
     call_list += ["-shared", "-o", name+ext]
     call_list += sources
     call_list += ["-I"+I for I in include_dirs]
     call_list += ["-L"+L for L in library_dirs]
-    if cc_bin is not None:
-        call_list += [as_list("-ccbin "+cc_bin)]
+    call_list += [as_list("-ccbin "+cl_bin)]
     call_list += ["-l"+l for l in libraries]
     call_list += extra_compile_args
 
@@ -55,25 +59,36 @@ def build_cuda(wd, name, sources,
 
 
 
-# Relevant paths
-base_path = path.dirname(path.realpath(__file__))
-src_path = path.join(base_path,"src")
-lib_path = path.join(base_path,"lib")
-
-# Create the folder to put the shared library in
-if not os.path.exists(lib_path):
-    os.makedirs(lib_path)
-
-# Compile into shared library
-build_cuda(src_path, path.join(lib_path,"cublas"),[
-           "cublas_axpy.cu",
-           "cublas_copy.cu",
-           "cublas_dgmm.cu",
-           "cublas_ewmm.cu",
-           "cublas_gemm.cu",
-           "cublas_init.cu",
-           "cublas_nrm2.cu",
-           "cublas_scal.cu",
-           "cublas_setstream.cu",
-           ],
-           libraries=["cuda", "cublas"])
+def main():
+    
+    for arg in sys.argv[1:]:
+        if "-cc_bin" in arg:
+            cc_bin = '"'+arg[8:]+'"'
+        if "-arch" in arg:
+            arch = arg
+    
+    base_path = os.path.abspath(os.path.dirname(__file__))
+    src_path = os.path.join(base_path,"src")
+    lib_path = os.path.join(base_path,"lib")
+    
+    # Create the folder if not exists to put shared library in
+    if not os.path.exists(lib_path):
+        os.makedirs(lib_path)
+    
+    # Compile into shared library
+    os.chdir(src_path)
+    build_cuda(src_path,
+               os.path.join(lib_path,__lib_name),
+               glob.glob("*.cu"),
+               arch=arch,
+               cl_bin=cc_bin,
+               libraries=["cuda", "cublas"])
+    
+     #Cleanup extra compile files
+    os.chdir(lib_path)
+    os.remove(__lib_name+".exp")
+    os.remove(__lib_name+".lib")
+    
+    
+if __name__ == "__main__":
+    main()
