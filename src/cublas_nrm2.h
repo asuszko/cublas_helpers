@@ -7,6 +7,7 @@
    #define DLL_EXPORT
 #endif
 
+
 extern "C" {
 
   void DLL_EXPORT cublas_nrm2(cublasHandle_t *handle,
@@ -22,5 +23,6 @@ inline cublasStatus_t cublasTnrm2(cublasHandle_t *handle,
                                   int n,
                                   const T *x, int incx,
                                   void *result);
+
 
 #endif /* ifndef CUBLAS_NRM2_H */

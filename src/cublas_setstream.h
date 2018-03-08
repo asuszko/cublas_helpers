@@ -7,6 +7,7 @@
    #define DLL_EXPORT
 #endif
 
+
 extern "C" {
 
   void DLL_EXPORT cublas_setstream(cublasHandle_t *handle,

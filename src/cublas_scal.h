@@ -7,6 +7,7 @@
    #define DLL_EXPORT
 #endif
 
+
 extern "C" {
 
   void DLL_EXPORT cublas_scal(cublasHandle_t *handle,
@@ -16,12 +17,12 @@ extern "C" {
                               int dtype);
 }
 
+
 template<typename T>
 inline cublasStatus_t cublasTscal(cublasHandle_t *handle,
                                   int n,
                                   const T *alpha,
                                   T *x, int incx);
-
 
 
 #endif /* ifndef CUBLAS_SCAL_H */

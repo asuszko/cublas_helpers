@@ -57,8 +57,14 @@ __global__ void cublasZmm(cuDoubleComplex *x, cuDoubleComplex *y,
     }
 }
 
-/* C compatible version that requires a dtype_id to be converted
-to the proper data type. */
+/**
+*  Elementwise multiply. y = y*x
+*  @param d_x [const void *] : Input array x with dimensions dims.
+*  @param d_y [void *] : Input/output array y with dimensions dims.
+*  @param dims [dim3] : Array dimensions [x,y,z].
+*  @param dtype [int] : Data type identifier.
+*  @param stream [cudaStream_t*] : CUDA stream.
+*/
 void cublas_ewmm(const void *d_x,
                  void *d_y,
                  dim3 dims,

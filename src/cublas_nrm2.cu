@@ -40,8 +40,9 @@ inline cublasStatus_t cublasTnrm2(cublasHandle_t *handle,
 
 
 
-/* C compatible version that requires a dtype_id to be converted
-to the proper data type. */
+/**
+*  http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-nrm2
+*/
 void cublas_nrm2(cublasHandle_t *handle,
                  int n,
                  const void *x, int incx,

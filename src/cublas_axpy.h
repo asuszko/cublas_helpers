@@ -7,6 +7,7 @@
    #define DLL_EXPORT
 #endif
 
+
 extern "C" {
 
   void DLL_EXPORT cublas_axpy(cublasHandle_t *handle,
@@ -24,5 +25,6 @@ inline cublasStatus_t cublasTaxpy(cublasHandle_t *handle,
                                   const T *alpha,
                                   const T *x, int incx,
                                   T *y, int incy);
+
 
 #endif /* ifndef CUBLAS_AXPY_H */

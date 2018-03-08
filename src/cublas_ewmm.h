@@ -7,6 +7,7 @@
    #define DLL_EXPORT
 #endif
 
+
 extern "C" {
 
   void DLL_EXPORT cublas_ewmm(const void *d_x,
@@ -15,7 +16,6 @@ extern "C" {
                               int dtype,
                               cudaStream_t *stream=NULL);
 }
-
 
 
 #endif /* ifndef CUBLAS_EWMM_H */

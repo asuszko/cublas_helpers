@@ -7,6 +7,7 @@
    #define DLL_EXPORT
 #endif
 
+
 extern "C" {
 
   void DLL_EXPORT cublas_copy(cublasHandle_t *handle,
@@ -15,6 +16,7 @@ extern "C" {
                               void *y, int incy,
                               int dtype);
 }
+
 
 template<typename T>
 inline cublasStatus_t cublasTcopy(cublasHandle_t *handle,

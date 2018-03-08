@@ -47,10 +47,9 @@ inline cublasStatus_t cublasTgemm(cublasHandle_t *handle,
 }
 
 
-
-
-/* C compatible version that requires a dtype_id to be converted
-to the proper data type. */
+/**
+*  http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemm
+*/
 void cublas_gemm(cublasHandle_t *handle,
                  cublasOperation_t transa,
                  cublasOperation_t transb,

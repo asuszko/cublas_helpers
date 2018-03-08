@@ -40,8 +40,9 @@ inline cublasStatus_t cublasTscal(cublasHandle_t *handle,
 
 
 
-/* C compatible version that requires a dtype_id to be converted
-to the proper data type. */
+/**
+*  http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-scal
+*/
 void cublas_scal(cublasHandle_t *handle,
                  int n,
                  void *alpha,

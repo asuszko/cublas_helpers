@@ -39,9 +39,9 @@ inline cublasStatus_t cublasTcopy(cublasHandle_t *handle,
 }
 
 
-
-/* C compatible version that requires a dtype_id to be converted
-to the proper data type. */
+/**
+*  http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-copy
+*/
 void cublas_copy(cublasHandle_t *handle,
                  int n,
                  const void *x, int incx,

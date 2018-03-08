@@ -40,9 +40,9 @@ inline cublasStatus_t cublasTaxpy(cublasHandle_t *handle,
 }
 
 
-
-/* C compatible version that requires a dtype_id to be converted
-to the proper data type. */
+/**
+*  http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-axpy
+*/
 void cublas_axpy(cublasHandle_t *handle,
                  int n,
                  const void *alpha,

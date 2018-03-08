@@ -45,10 +45,9 @@ inline cublasStatus_t cublasTdgmm(cublasHandle_t *handle,
 }
 
 
-
-
-/* C compatible version that requires a dtype_id to be converted
-to the proper data type. */
+/**
+*  http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-dgmm
+*/
 void cublas_dgmm(cublasHandle_t *handle,
                  cublasSideMode_t mode,
                  int m, int n,
