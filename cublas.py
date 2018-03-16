@@ -6,11 +6,6 @@ __all__ = [
 
 import numpy as np
 
-# Path must be appended for Python 3.x
-import os
-import sys
-sys.path.append(os.path.join(os.getcwd(),"cublas_helpers"))
-
 # Local imports
 from cublas_import import (cublas_axpy,
                            cublas_copy,
