@@ -17,10 +17,18 @@ from cublas_import import (cublas_axpy,
                            cublas_setstream)
 
 # Datatype identifier. cuBLAS currently supports these.
-blas_types = {np.dtype('f4'):0,
-              np.dtype('f8'):1,
-              np.dtype('c8'):2,
-              np.dtype('c16'):3}
+_blas_types = {np.dtype('f4'):0,
+               np.dtype('f8'):1,
+               np.dtype('c8'):2,
+               np.dtype('c16'):3}
+
+
+def check_vectors(x, y):
+    try:
+        if x.dtype != y.dtype:
+            raise TypeError('Dtype mismatch between vectors x and y in axpy.')
+    except (TypeError):
+        exit('Could not complete request.')
 
 
 class cublas(object):
@@ -44,28 +52,22 @@ class cublas(object):
         self._blas_handle = cublas_init()
         if self.stream is not None:
             cublas_setstream(self.handle, self.stream)
-        
 
-    def axpy(self, n, alpha, x, y, dtype=None, xinc=1, yinc=1):
+
+    def axpy(self, alpha, x, y, xinc=1, yinc=1, n=None):
         """
         cuBLAS function ax plus y.
         
         Parameters
         ----------
-        n : int
-            Number of elements in the vectors x and y.
-        
         alpha : blas_types[dtype]
             Scalar used for multiplication.
             
-        x : c_void_p
-            Device pointer to vector x.
+        x : Device_Ptr object
+            Device pointer object with dev_ptr to vector x.
             
-        y : c_void_p
-            Device pointer to vector y.
-        
-        dtype : np.dtype, optional
-            Data type identifier specified by 'blas_types'.
+        y : Device_Ptr object
+            Device pointer object with dev_ptr to vector x.
         
         xinc : int, optional
             Stride between consecutive elements of x.
@@ -73,55 +75,53 @@ class cublas(object):
         yinc : int, optional
             Stride between consecutive elements of y.
             
-        Notes
-        -----
-        If a dtype id is not passed in, a dtype will be determined 
-        from alpha.
+        n : int, optional
+            Number of elements in the vectors x and y.
         """
-        if dtype is None:
-            dtype = alpha.dtype
-
+        if type(alpha) is not np.ndarray:
+            alpha = np.array(alpha, dtype=x.dtype)
+        n = n or len(x)
+        check_vectors(x,y)
         cublas_axpy(self.handle, n, alpha,
-                    x, xinc,
-                    y, yinc,
-                    blas_types[np.dtype(dtype)])
+                    x.ptr, xinc,
+                    y.ptr, yinc,
+                    _blas_types[x.dtype])
 
                            
-    def copy(self, n, x, y, dtype, xinc=1, yinc=1):
+    def copy(self, x, y, xinc=1, yinc=1, n=None):
         """
         cuBLAS function copy vector x to y.
         
         Parameters
-        ----------
-        n : int
-            Number of elements in the vectors x and y.
+        ---------- 
+        x : Device_Ptr object
+            Device pointer object with dev_ptr to vector x.
             
-        x : c_void_p
-            Device pointer to vector x.
-            
-        y : c_void_p
-            Device pointer to vector y.
-        
-        dtype : np.dtype
-            Data type identifier specified by 'blas_types'.
+        y : Device_Ptr object
+            Device pointer object with dev_ptr to vector y.
         
         xinc : int, optional
             Stride between consecutive elements of x.
     
         yinc : int, optional
             Stride between consecutive elements of y.
+            
+        n : int
+            Number of elements in the vectors x and y.
             
         Notes
         -----
         This is the equivalent of doing a cuda_memcpyd2d(...)
         """
+        check_vectors(x,y)
+        n = n or len(x)
         cublas_copy(self.handle, n,
-                    x, xinc,
-                    y, yinc,
-                    blas_types[np.dtype(dtype)])
+                    x.ptr, xinc,
+                    y.ptr, yinc,
+                    _blas_types[x.dtype])
         
         
-    def ewmm(self, x, y, dims, dtype):
+    def ewmm(self, x, y, dims):
         """
         BLAS-like function copy vector x to y. This is not an official 
         function in the cuBLAS library, however may be useful in code that 
@@ -131,91 +131,79 @@ class cublas(object):
         
         Parameters
         ----------
-        x : c_void_p
-            Device pointer to vector x.
+        x : Device_Ptr object
+            Device pointer object with dev_ptr to vector x.
             
-        y : c_void_p
-            Device pointer to vector y.
+        y : Device_Ptr object
+            Device pointer object with dev_ptr to vector y.
             
         dims : list or np.ndarray
             The dimensions of vectors x and y. Up to three dimensions 
             are currently supported.
-            
-        dtype : np.dtype
-            Data type identifier specified by 'blas_types'.
         """
-        if type(dims) is list:
+        if type(dims) in [list, tuple]:
             dims = np.array(dims, dtype='i4')
-        cublas_ewmm(x, y, dims,
-                    blas_types[np.dtype(dtype)],
+        check_vectors(x,y)
+        cublas_ewmm(x.ptr, y.ptr, dims,
+                    _blas_types[np.dtype(x.dtype)],
                     self.stream)
 
 
-    def nrm2(self, n, x, dtype, xinc=1):
+    def nrm2(self, x, xinc=1, n=None):
         """
         Computes the Euclidean norm of the vector x, and stores 
         the result on host array y.
         
         Parameters
         ----------
-        n : int
-            Number of elements in the vectors x
-            
-        x : c_void_p
-            Device pointer to vector x.
-          
-        dtype : np.dtype
-            Data type identifier specified by 'blas_types'.
+        x : Device_Ptr object
+            Device pointer object with dev_ptr to vector x.
             
         xinc : int, optional
             Stride between consecutive elements of x.
+            
+        n : int, optional
+            Number of elements in the vectors x
             
         Returns
         -------
         y : blas_types[dtype]
             Euclidean norm of the vector x.
         """
-        y = np.empty(1, dtype=np.dtype(dtype))
+        y = np.empty(1, dtype=x.dtype)
+        n = n or len(x)
         cublas_nrm2(self.handle, n,
-                    x, xinc,
+                    x.ptr, xinc,
                     y,
-                    blas_types[np.dtype(dtype)])
+                    _blas_types[x.dtype])
         return y[0]
  
     
-    def scal(self, n, alpha, x, dtype=None, xinc=1):
+    def scal(self, alpha, x, xinc=1, n=None):
         """
         Scales the vector x by the scalar alpha and overwrites itself 
         with the result.
         
         Parameters
-        ----------
-        n : int
-            Number of elements in the vectors x
-        
+        ----------       
         alpha : blas_types[dtype]
             Scalar used for multiplication.
             
-        x : c_void_p
-            Device pointer to vector x.
-        
-        dtype : np.dtype, optional
-            Data type identifier specified by 'blas_types'.
-        
+        x : Device_Ptr object
+            Device pointer object with dev_ptr to vector x.
+            
         xinc : int, optional
             Stride between consecutive elements of x.
             
-        Notes
-        -----
-        If a dtype id is not passed in, a dtype will be determined 
-        from alpha.
+        n : int, optional
+            Number of elements in the vectors x
         """
-        if dtype is None:
-            dtype = alpha.dtype
-            
+        if type(alpha) is not np.ndarray:
+            alpha = np.array(alpha, dtype=x.dtype)
+        n = n or len(x)
         cublas_scal(self.handle, n, alpha,
-                    x, xinc,
-                    blas_types[np.dtype(dtype)])
+                    x.ptr, xinc,
+                    _blas_types[x.dtype])
     
 
     @property
