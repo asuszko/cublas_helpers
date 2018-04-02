@@ -1,6 +1,6 @@
 # cublas_helpers
 
-Part of a Python framework that allows a user to **GPU accelerate their Python code with cuBLAS**. An object is created that handles the interface between Python and cuBLAS. This object is part of a larger container within the [pycu_interface](https://github.com/asuszko/pycu_interface). Thus, while this repo may be used standalone, it is recommended it be downloaded with [pycu_interface](https://github.com/asuszko/pycu_interface). Doing a recursive clone on [pycu_interface](https://github.com/asuszko/pycu_interface) will also clone [cublas_helpers](https://github.com/asuszko/cublas_helpers).
+Part of a Python framework that allows a user to **GPU accelerate their Python code with cuBLAS**. An object is created that handles the interface between Python and cuBLAS. This object is part of a larger container within the [cuda_manager](https://github.com/asuszko/cuda_manager). Thus, while this repo may be used standalone, it is recommended it be downloaded with [cuda_manager](https://github.com/asuszko/cuda_manager). Doing a recursive clone on [cuda_manager](https://github.com/asuszko/cuda_manager) will also clone [cublas_helpers](https://github.com/asuszko/cublas_helpers).
 
 
 # cuBLAS Support
@@ -15,7 +15,7 @@ For reference to official Nvidia documentation:
 To compile the shared library, run the **setup.py** file found in the root folder from the command line, with optional argument(s) -arch, and -cc_bin if on Windows. On Windows, the NVCC compiler looks for cl.exe to compile the C/C++, which comes with Visual Studio. On Linux, it uses the built in GCC compiler. An example of a command line run to compile the code is given below:
 > python setup.py -arch=sm_50 -cc_bin="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin"
 
-If you are unable to compile, you may [download precompiled libraries here](https://github.com/asuszko/pycu_interface_libs).
+If you are unable to compile, you may [download precompiled libraries here](https://github.com/asuszko/cuda_manager_libs).
 
 ## Compiler Requirements
 
@@ -31,9 +31,6 @@ If you are unable to compile, you may [download precompiled libraries here](http
 - [cublas<t<t>>gemm](http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-gemm)
 - [cublas<t<t>>nrm2](http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-nrm2)
 - [cublas<t<t>>scal](http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-scal)
-
-### Additional Functions
--  cublas<t<t>>ewmm : Vector element-wise multiply. 
 
 ## Samples & Notes
 

@@ -4,42 +4,6 @@
 #include "cublas_scal.h"
 
 
-template<typename T>
-inline cublasStatus_t cublasTscal(cublasHandle_t *handle,
-        int n,
-        const T *alpha,
-        T *x, int incx)
-{
-    if (std::is_same<T, float>::value) {
-        return cublasSscal(*handle, n,
-                          (float *)alpha,
-                          (float *)x, incx);
-    }
-    else
-    if (std::is_same<T, double>::value) {
-        return cublasDscal(*handle, n,
-                          (double *)alpha,
-                          (double *)x, incx);
-    }
-    else
-    if (std::is_same<T, cuComplex>::value) {
-        return cublasCscal(*handle, n,
-                          (cuComplex *)alpha,
-                          (cuComplex *)x, incx);
-    }
-    else
-    if (std::is_same<T, cuDoubleComplex>::value) {
-        return cublasZscal(*handle, n,
-                          (cuDoubleComplex *)alpha,
-                          (cuDoubleComplex *)x, incx);
-    }
-    else {
-        return CUBLAS_STATUS_EXECUTION_FAILED;
-    }
-}
-
-
-
 /**
 *  http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-scal
 */
@@ -51,33 +15,29 @@ void cublas_scal(cublasHandle_t *handle,
 {
     switch(dtype) {
 
-        case 0: {
-            gpuBlasErrchk(cublasTscal(handle, n,
-                                      (float*)alpha,
-                                      (float*)d_x, incx));
+        case 0:
+            gpuBlasErrchk(cublasSscal(*handle, n,
+                                      static_cast<float*>(alpha),
+                                      static_cast<float*>(d_x), incx));
             break;
-        }
 
-        case 1: {
-            gpuBlasErrchk(cublasTscal(handle, n,
-                                      (double*)alpha,
-                                      (double*)d_x, incx));
+        case 1:
+            gpuBlasErrchk(cublasDscal(*handle, n,
+                                      static_cast<double*>(alpha),
+                                      static_cast<double*>(d_x), incx));
             break;
-        }
 
-        case 2: {
-            gpuBlasErrchk(cublasTscal(handle, n,
-                                      (cuComplex*)alpha,
-                                      (cuComplex*)d_x, incx));
+        case 2:
+            gpuBlasErrchk(cublasCscal(*handle, n,
+                                      static_cast<float2*>(alpha),
+                                      static_cast<float2*>(d_x), incx));
             break;
-        }
 
-        case 3: {
-            gpuBlasErrchk(cublasTscal(handle, n,
-                                      (cuDoubleComplex*)alpha,
-                                      (cuDoubleComplex*)d_x, incx));
+        case 3:
+            gpuBlasErrchk(cublasZscal(*handle, n,
+                                      static_cast<double2*>(alpha),
+                                      static_cast<double2*>(d_x), incx));
             break;
-        }
     }
 
     return;

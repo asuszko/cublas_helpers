@@ -10,23 +10,14 @@
 
 extern "C" {
 
-  void DLL_EXPORT cublas_dgmm(cublasHandle_t *handle,
-                              cublasSideMode_t mode,
-                              int m, int n,
-                              const void *d_A, int lda,
-                              const void *d_x, int incx,
-                              void *d_C, int ldc,
-                              int dtype);
+    void DLL_EXPORT cublas_dgmm(cublasHandle_t *handle,
+                                cublasSideMode_t mode,
+                                int m, int n,
+                                void *d_A, int lda,
+                                void *d_x, int incx,
+                                void *d_C, int ldc,
+                                int dtype);
 }
-
-
-template<typename T>
-inline cublasStatus_t cublasTdgmm(cublasHandle_t *handle,
-                                  cublasSideMode_t mode,
-                                  int m, int n,
-                                  const T *A, int lda,
-                                  const T *x, int incx,
-                                  T *C, int ldc);
 
 
 #endif /* ifndef CUBLAS_DGMM_H */

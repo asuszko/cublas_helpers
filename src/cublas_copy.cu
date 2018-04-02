@@ -4,80 +4,41 @@
 #include "cublas_copy.h"
 
 
-template<typename T>
-inline cublasStatus_t cublasTcopy(cublasHandle_t *handle,
-                                  int n,
-                                  const T *x, int incx,
-                                  T *y, int incy)
-{
-    if (std::is_same<T, float>::value) {
-        return cublasScopy(*handle, n,
-                          (float *)x, incx,
-                          (float *)y, incy);
-    }
-    else
-    if (std::is_same<T, double>::value) {
-        return cublasDcopy(*handle, n,
-                          (double *)x, incx,
-                          (double *)y, incy);
-    }
-    else
-    if (std::is_same<T, cuComplex>::value) {
-        return cublasCcopy(*handle, n,
-                          (cuComplex *)x, incx,
-                          (cuComplex *)y, incy);
-    }
-    else
-    if (std::is_same<T, cuDoubleComplex>::value) {
-        return cublasZcopy(*handle, n,
-                          (cuDoubleComplex *)x, incx,
-                          (cuDoubleComplex *)y, incy);
-    }
-    else {
-        return CUBLAS_STATUS_EXECUTION_FAILED;
-    }
-}
-
 
 /**
 *  http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-copy
 */
 void cublas_copy(cublasHandle_t *handle,
                  int n,
-                 const void *x, int incx,
+                 void *x, int incx,
                  void *y, int incy,
                  int dtype)
 {
 
     switch(dtype) {
-        case 0: {
-            gpuBlasErrchk(cublasTcopy(handle,
-                                      n,
-                                      (float*)x, incx,
-                                      (float*)y, incy));
+        case 0:
+            gpuBlasErrchk(cublasScopy(*handle, n,
+                                      static_cast<float*>(x), incx,
+                                      static_cast<float*>(y), incy));
             break;
-        }
-        case 1: {
-            gpuBlasErrchk(cublasTcopy(handle,
-                                      n,
-                                      (double*)x, incx,
-                                      (double*)y, incy));
+
+        case 1:
+            gpuBlasErrchk(cublasDcopy(*handle, n,
+                                      static_cast<double*>(x), incx,
+                                      static_cast<double*>(y), incy));
             break;
-        }
-        case 2: {
-            gpuBlasErrchk(cublasTcopy(handle,
-                                      n,
-                                      (cuComplex*)x, incx,
-                                      (cuComplex*)y, incy));
+
+        case 2:
+            gpuBlasErrchk(cublasCcopy(*handle, n,
+                                      static_cast<float2*>(x), incx,
+                                      static_cast<float2*>(y), incy));
              break;
-        }
-        case 3: {
-            gpuBlasErrchk(cublasTcopy(handle,
-                                      n,
-                                      (cuDoubleComplex*)x, incx,
-                                      (cuDoubleComplex*)y, incy));
+
+        case 3:
+            gpuBlasErrchk(cublasZcopy(*handle, n,
+                                      static_cast<double2*>(x), incx,
+                                      static_cast<double2*>(y), incy));
             break;
-        }
     }
 
     return;

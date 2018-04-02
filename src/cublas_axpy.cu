@@ -4,86 +4,46 @@
 #include "cublas_axpy.h"
 
 
-template<typename T>
-inline cublasStatus_t cublasTaxpy(cublasHandle_t *handle,
-        int n,
-        const T *alpha,
-        const T *x, int incx,
-        T *y, int incy)
-{
-    if (std::is_same<T, float>::value) {
-        return cublasSaxpy(*handle, n, (float *)alpha,
-                          (float *)x, incx,
-                          (float *)y, incy);
-    }
-    else
-    if (std::is_same<T, double>::value) {
-        return cublasDaxpy(*handle, n, (double *)alpha,
-                          (double *)x, incx,
-                          (double *)y, incy);
-    }
-    else
-    if (std::is_same<T, cuComplex>::value) {
-        return cublasCaxpy(*handle, n, (cuComplex *)alpha,
-                          (cuComplex *)x, incx,
-                          (cuComplex *)y, incy);
-    }
-    else
-    if (std::is_same<T, cuDoubleComplex>::value) {
-        return cublasZaxpy(*handle, n, (cuDoubleComplex *)alpha,
-                          (cuDoubleComplex *)x, incx,
-                          (cuDoubleComplex *)y, incy);
-    }
-    else {
-        return CUBLAS_STATUS_EXECUTION_FAILED;
-    }
-}
-
-
 /**
 *  http://docs.nvidia.com/cuda/cublas/index.html#cublas-lt-t-gt-axpy
 */
 void cublas_axpy(cublasHandle_t *handle,
                  int n,
-                 const void *alpha,
-                 const void *x, int incx,
+                 void *alpha,
+                 void *x, int incx,
                  void *y, int incy,
                  int dtype)
 {
 
     switch(dtype) {
-        case 0: {
-            gpuBlasErrchk(cublasTaxpy(handle,
-                                      n,
-                                      (float *)alpha,
-                                      (float *)x, incx,
-                                      (float *)y, incy));
+        case 0:
+            gpuBlasErrchk(cublasSaxpy(*handle, n,
+                                      static_cast<float*>(alpha),
+                                      static_cast<float*>(x), incx,
+                                      static_cast<float*>(y), incy));
             break;
-        }
-        case 1: {
-            gpuBlasErrchk(cublasTaxpy(handle,
-                                      n,
-                                      (double *)alpha,
-                                      (double *)x, incx,
-                                      (double *)y, incy));
+
+        case 1:
+            gpuBlasErrchk(cublasDaxpy(*handle, n,
+                                      static_cast<double*>(alpha),
+                                      static_cast<double*>(x), incx,
+                                      static_cast<double*>(y), incy));
             break;
-        }
-        case 2: {
-            gpuBlasErrchk(cublasTaxpy(handle,
-                                      n,
-                                      (cuComplex *)alpha,
-                                      (cuComplex *)x, incx,
-                                      (cuComplex *)y, incy));
+
+        case 2:
+            gpuBlasErrchk(cublasCaxpy(*handle, n,
+                                      static_cast<float2*>(alpha),
+                                      static_cast<float2*>(x), incx,
+                                      static_cast<float2*>(y), incy));
             break;
-        }
-        case 3: {
-            gpuBlasErrchk(cublasTaxpy(handle,
-                                      n,
-                                      (cuDoubleComplex *)alpha,
-                                      (cuDoubleComplex *)x, incx,
-                                      (cuDoubleComplex *)y, incy));
+
+        case 3:
+            gpuBlasErrchk(cublasZaxpy(*handle, n,
+                                      static_cast<double2*>(alpha),
+                                      static_cast<double2*>(x), incx,
+                                      static_cast<double2*>(y), incy));
             break;
-        }
+
     }
 
     return;

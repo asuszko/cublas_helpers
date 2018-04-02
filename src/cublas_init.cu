@@ -10,7 +10,7 @@
 cublasHandle_t *cublas_init()
 {
     /* Create cuBLAS handle. */
-    cublasHandle_t *handle = (cublasHandle_t*)malloc(sizeof(cublasHandle_t));
+    cublasHandle_t *handle = new cublasHandle_t;
 
     /* Initialize cuBLAS library context. */
     gpuBlasErrchk(cublasCreate(handle));
@@ -26,5 +26,6 @@ cublasHandle_t *cublas_init()
 void cublas_destroy(cublasHandle_t *handle)
 {
     gpuBlasErrchk(cublasDestroy(*handle))
+    delete[] handle;
     return;
 }

@@ -5,7 +5,6 @@ __all__ = [
     "cublas_copy",
     "cublas_destroy",
     "cublas_dgmm",
-    "cublas_ewmm",
     "cublas_gemm",
     "cublas_init",
     "cublas_nrm2",
@@ -60,13 +59,6 @@ argtype_defs = {
                      c_void_p,              #Device pointer to matrix c
                      c_int,                 #Leading dimension length of C
                      c_int],                #Data type identifier
-
-
-    "cublas_ewmm" : [c_void_p,              #Device pointer to matirx A
-                     c_void_p,              #Device pointer to matirx B
-                     ndpointer(),           #Dimenions of the matrix A and B [mxn]
-                     c_int,                 #Data type identifier
-                     c_void_p],             #Pointer to CUDA stream
 
 
     "cublas_gemm" : [c_void_p,              #Pointer to cuBLAS handle

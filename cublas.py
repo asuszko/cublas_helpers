@@ -10,7 +10,6 @@ import numpy as np
 from cublas_import import (cublas_axpy,
                            cublas_copy,
                            cublas_destroy,
-                           cublas_ewmm,
                            cublas_init,
                            cublas_nrm2,
                            cublas_scal,
@@ -119,34 +118,6 @@ class cublas(object):
                     x.ptr, xinc,
                     y.ptr, yinc,
                     _blas_types[x.dtype])
-        
-        
-    def ewmm(self, x, y, dims):
-        """
-        BLAS-like function copy vector x to y. This is not an official 
-        function in the cuBLAS library, however may be useful in code that 
-        deals with matrix operations.
-        
-        This code will do y = y*x.
-        
-        Parameters
-        ----------
-        x : Device_Ptr object
-            Device pointer object with dev_ptr to vector x.
-            
-        y : Device_Ptr object
-            Device pointer object with dev_ptr to vector y.
-            
-        dims : list or np.ndarray
-            The dimensions of vectors x and y. Up to three dimensions 
-            are currently supported.
-        """
-        if type(dims) in [list, tuple]:
-            dims = np.array(dims, dtype='i4')
-        check_vectors(x,y)
-        cublas_ewmm(x.ptr, y.ptr, dims,
-                    _blas_types[np.dtype(x.dtype)],
-                    self.stream)
 
 
     def nrm2(self, x, xinc=1, n=None):
