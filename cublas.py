@@ -10,6 +10,7 @@ import numpy as np
 from cublas_import import (cublas_axpy,
                            cublas_copy,
                            cublas_destroy,
+                           cublas_gemm,
                            cublas_init,
                            cublas_nrm2,
                            cublas_scal,
@@ -92,7 +93,7 @@ class cublas(object):
         cuBLAS function copy vector x to y.
         
         Parameters
-        ---------- 
+        ----------
         x : Device_Ptr object
             Device pointer object with dev_ptr to vector x.
             
@@ -118,6 +119,62 @@ class cublas(object):
                     x.ptr, xinc,
                     y.ptr, yinc,
                     _blas_types[x.dtype])
+
+
+    def gemm(self, alpha, a, b, c, beta=0, OPA='N', OPB='N'):
+        """
+        cuBLAS function gemm.
+        
+        Parameters
+        ---------- 
+        alpha : blas_types[dtype]
+            Scalar used for multiplication.
+            
+        a : Device_Ptr object
+            Device pointer object with dev_ptr to input matrix a.
+            
+        b : Device_Ptr object
+            Device pointer object with dev_ptr to input matrix b.
+        
+        c : Device_Ptr object
+            Device pointer object with dev_ptr to output matrix c.
+    
+        beta : blas_types[dtype], optional
+            Not really sure what beta does. Documentation sets 
+            this to zero when doing a gemm.
+            
+        OPA : str, optional
+            CUBLAS_OP_N ('N') or CUBLAS_OP_T ('T')
+            
+        OPB : str, optional
+            CUBLAS_OP_N ('N') or CUBLAS_OP_T ('T')
+        
+        Notes
+        -----
+        Dealing with cuBLAS FORTRAN style indexing:
+            https://peterwittek.com/cublas-matrix-c-style.html
+        """
+        check_vectors(a,b)
+        check_vectors(b,c)
+        
+        m = b.shape[1]
+        n, k = a.shape
+        
+        if type(alpha) is not np.ndarray:
+            alpha = np.array(alpha, dtype=a.dtype)
+            
+        beta = np.array(beta, dtype=a.dtype)
+        
+        cublas_gemm(self.handle,
+                    {'N':0, 'T':1}[OPA],
+                    {'N':0, 'T':1}[OPB],
+                    m, n, k,
+                    alpha,
+                    b.ptr, m,
+                    a.ptr, k,
+                    beta,
+                    c.ptr, m,
+                    _blas_types[a.dtype])
 
 
     def nrm2(self, x, xinc=1, n=None):
@@ -192,5 +249,4 @@ class cublas(object):
 
 
     def __exit__(self, *args, **kwargs):
-        cublas_destroy(self.blas_handle)
-        return
+        cublas_destroy(self.handle)

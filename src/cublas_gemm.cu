@@ -25,10 +25,10 @@ void cublas_gemm(cublasHandle_t *handle,
             gpuBlasErrchk(cublasSgemm(*handle,
                                       transa,transb,
                                       m,n,k,
-                                      static_cast<float*>(alpha),
-                                      static_cast<float*>(d_A), lda,
-                                      static_cast<float*>(d_B), ldb,
-                                      static_cast<float*>(beta),
+                                      static_cast<const float*>(alpha),
+                                      static_cast<const float*>(d_A), lda,
+                                      static_cast<const float*>(d_B), ldb,
+                                      static_cast<const float*>(beta),
                                       static_cast<float*>(d_C), ldc));
             break;
 
@@ -36,10 +36,10 @@ void cublas_gemm(cublasHandle_t *handle,
             gpuBlasErrchk(cublasDgemm(*handle,
                                       transa,transb,
                                       m,n,k,
-                                      static_cast<double*>(alpha),
-                                      static_cast<double*>(d_A), lda,
-                                      static_cast<double*>(d_B), ldb,
-                                      static_cast<double*>(beta),
+                                      static_cast<const double*>(alpha),
+                                      static_cast<const double*>(d_A), lda,
+                                      static_cast<const double*>(d_B), ldb,
+                                      static_cast<const double*>(beta),
                                       static_cast<double*>(d_C), ldc));
             break;
 
@@ -47,10 +47,10 @@ void cublas_gemm(cublasHandle_t *handle,
             gpuBlasErrchk(cublasCgemm(*handle,
                                       transa,transb,
                                       m,n,k,
-                                      static_cast<float2*>(alpha),
-                                      static_cast<float2*>(d_A), lda,
-                                      static_cast<float2*>(d_B), ldb,
-                                      static_cast<float2*>(beta),
+                                      static_cast<const float2*>(alpha),
+                                      static_cast<const float2*>(d_A), lda,
+                                      static_cast<const float2*>(d_B), ldb,
+                                      static_cast<const float2*>(beta),
                                       static_cast<float2*>(d_C), ldc));
             break;
 
@@ -58,10 +58,10 @@ void cublas_gemm(cublasHandle_t *handle,
             gpuBlasErrchk(cublasZgemm(*handle,
                                       transa,transb,
                                       m,n,k,
-                                      static_cast<double2*>(alpha),
-                                      static_cast<double2*>(d_A), lda,
-                                      static_cast<double2*>(d_B), ldb,
-                                      static_cast<double2*>(beta),
+                                      static_cast<const double2*>(alpha),
+                                      static_cast<const double2*>(d_A), lda,
+                                      static_cast<const double2*>(d_B), ldb,
+                                      static_cast<const double2*>(beta),
                                       static_cast<double2*>(d_C), ldc));
             break;
     }
