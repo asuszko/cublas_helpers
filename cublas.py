@@ -4,6 +4,8 @@ __all__ = [
     "cublas",
 ]
 
+from functools import reduce
+from operator import mul
 import numpy as np
 
 # Local imports
@@ -11,10 +13,14 @@ from cublas_import import (cublas_axpy,
                            cublas_copy,
                            cublas_destroy,
                            cublas_gemm,
+                           cublas_gemm_strided_batched,
                            cublas_init,
                            cublas_nrm2,
+                           cublas_rf_batched,
+                           cublas_ri_batched,
                            cublas_scal,
-                           cublas_setstream)
+                           cublas_setstream,
+                           cublasx_diag)
 
 # Datatype identifier. cuBLAS currently supports these.
 _blas_types = {np.dtype('f4'):0,
@@ -114,14 +120,23 @@ class cublas(object):
         This is the equivalent of doing a cuda_memcpyd2d(...)
         """
         check_vectors(x,y)
-        n = n or len(x)
+        n = n or len(y)
         cublas_copy(self.handle, n,
                     x.ptr, xinc,
                     y.ptr, yinc,
                     _blas_types[x.dtype])
 
 
-    def gemm(self, alpha, a, b, c, beta=0, OPA='N', OPB='N'):
+    def diag(self, x):
+        
+        batch_size, n, m = x.shape
+        cublasx_diag(x.ptr,
+                     m, n, batch_size,
+                     _blas_types[x.dtype],
+                     self.stream)
+                
+
+    def gemm(self, a, b, c, alpha=1, beta=0, OPA='N', OPB='N'):
         """
         cuBLAS function gemm.
         
@@ -144,10 +159,10 @@ class cublas(object):
             this to zero when doing a gemm.
             
         OPA : str, optional
-            CUBLAS_OP_N ('N') or CUBLAS_OP_T ('T')
+            CUBLAS_OP_N ('N') or CUBLAS_OP_T ('T') or CUBLAS_OP_C ('C')
             
         OPB : str, optional
-            CUBLAS_OP_N ('N') or CUBLAS_OP_T ('T')
+            CUBLAS_OP_N ('N') or CUBLAS_OP_T ('T') or CUBLAS_OP_C ('C')
         
         Notes
         -----
@@ -162,12 +177,13 @@ class cublas(object):
         
         if type(alpha) is not np.ndarray:
             alpha = np.array(alpha, dtype=a.dtype)
-            
-        beta = np.array(beta, dtype=a.dtype)
+           
+        if type(beta) is not np.ndarray:
+            beta = np.array(beta, dtype=a.dtype)
         
         cublas_gemm(self.handle,
-                    {'N':0, 'T':1}[OPA],
-                    {'N':0, 'T':1}[OPB],
+                    {'N':0, 'T':1, 'C':2}[OPA],
+                    {'N':0, 'T':1, 'C':2}[OPB],
                     m, n, k,
                     alpha,
                     b.ptr, m,
@@ -176,6 +192,76 @@ class cublas(object):
                     c.ptr, m,
                     _blas_types[a.dtype])
 
+
+    def gemm_strided_batched(self, a, b, c, alpha=1, beta=0, 
+                             strideA=None, strideB=None, strideC=None,
+                             OPA='N', OPB='N'):
+        """
+        cuBLAS function gemm.
+        
+        Parameters
+        ---------- 
+        alpha : blas_types[dtype]
+            Scalar used for multiplication.
+            
+        a : Device_Ptr object
+            Device pointer object with dev_ptr to input matrix a.
+            
+        b : Device_Ptr object
+            Device pointer object with dev_ptr to input matrix b.
+        
+        c : Device_Ptr object
+            Device pointer object with dev_ptr to output matrix c.
+    
+        beta : blas_types[dtype], optional
+            Not really sure what beta does. Documentation sets 
+            this to zero when doing a gemm.
+            
+        OPA : str, optional
+            CUBLAS_OP_N ('N') or CUBLAS_OP_T ('T') or CUBLAS_OP_C ('C')
+            
+        OPB : str, optional
+            CUBLAS_OP_N ('N') or CUBLAS_OP_T ('T') or CUBLAS_OP_C ('C')
+        
+        Notes
+        -----
+        Dealing with cuBLAS FORTRAN style indexing:
+            https://peterwittek.com/cublas-matrix-c-style.html
+        """
+        check_vectors(a,b)
+        check_vectors(b,c)
+        
+        batch_size = c.shape[0]
+        m, n = c.shape[-2:]
+        k = a.shape[-1] if OPA == 'N' else a.shape[-2]
+        
+        if type(alpha) is not np.ndarray:
+            alpha = np.array(alpha, dtype=a.dtype)
+           
+        if type(beta) is not np.ndarray:
+            beta = np.array(beta, dtype=a.dtype)
+
+        ldc = n
+        ldb = n if OPB == 'N' else k
+        lda = k if OPA == 'N' else m
+        
+        strideA = strideA or reduce(mul,a.shape[-2:]) if len(a) > 1 else 0
+        strideB = strideB or reduce(mul,b.shape[-2:]) if len(b) > 1 else 0
+        strideC = strideC or reduce(mul,c.shape[-2:]) if len(c) > 1 else 0
+        
+        cublas_gemm_strided_batched(
+                self.handle,
+                {'N':0, 'T':1, 'C':2}[OPB],
+                {'N':0, 'T':1, 'C':2}[OPA],
+                n, m, k,
+                alpha,
+                b.ptr, ldb, strideB,
+                a.ptr, lda, strideA,
+                beta,
+                c.ptr, ldc, strideC,
+                batch_size,
+                _blas_types[a.dtype])
+        
 
     def nrm2(self, x, xinc=1, n=None):
         """
@@ -205,7 +291,28 @@ class cublas(object):
                     y,
                     _blas_types[x.dtype])
         return y[0]
- 
+
+
+    def rf_batched(self, x, p, i, n, batch_size):
+        
+        cublas_rf_batched(self.handle, n,
+                          x.ptr,
+                          p.ptr,
+                          i.ptr,
+                          batch_size,
+                          _blas_types[x.dtype])
+
+
+    def ri_batched(self, x, y, p, i, n, batch_size):
+        
+        cublas_ri_batched(self.handle, n,
+                          x.ptr,
+                          p.ptr,
+                          y.ptr,
+                          i.ptr,
+                          batch_size,
+                          _blas_types[x.dtype])
+
     
     def scal(self, alpha, x, xinc=1, n=None):
         """
