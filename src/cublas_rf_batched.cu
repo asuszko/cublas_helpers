@@ -18,23 +18,23 @@ void cublas_rf_batched(cublasHandle_t *handle,
         case 0:
         {
             // float *ASptr = static_cast<float*>(*Aarray);
-            // gpuBlasErrchk(cublasSgetrfBatched(*handle, n, 
-                                              // &ASptr, n, 
-                                              // PivotArray,
-                                              // infoArray,
-                                              // batchSize));
-            // break;
+            gpuBlasErrchk(cublasSgetrfBatched(*handle, n, 
+                                              (float**)Aarray, n, 
+                                              PivotArray,
+                                              infoArray,
+                                              batchSize));
+            break;
         }
 
         case 1:
         {
             // double *ADptr = static_cast<double*>(*Aarray);
-            // gpuBlasErrchk(cublasDgetrfBatched(*handle, n, 
-                                              // &ADptr, n, 
-                                              // PivotArray,
-                                              // infoArray,
-                                              // batchSize));
-            // break;
+            gpuBlasErrchk(cublasDgetrfBatched(*handle, n, 
+                                              (double**)Aarray, n, 
+                                              PivotArray,
+                                              infoArray,
+                                              batchSize));
+            break;
         }
         
         case 2:
@@ -51,12 +51,12 @@ void cublas_rf_batched(cublasHandle_t *handle,
         case 3:
         {
             // double2 *AZptr = static_cast<double2*>(*Aarray);
-            // gpuBlasErrchk(cublasZgetrfBatched(*handle, n, 
-                                              // &AZptr, n, 
-                                              // PivotArray,
-                                              // infoArray,
-                                              // batchSize));
-            // break;
+            gpuBlasErrchk(cublasZgetrfBatched(*handle, n, 
+                                              (double2**)Aarray, n, 
+                                              PivotArray,
+                                              infoArray,
+                                              batchSize));
+            break;
         }
     }
 

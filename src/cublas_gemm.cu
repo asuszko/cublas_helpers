@@ -169,10 +169,10 @@ void cublas_gemm_strided_batched(cublasHandle_t *handle,
                                  cublasOperation_t transb,
                                  int m, int n, int k,
                                  void *alpha,
-                                 void *d_A, int lda, long long int strideA,
-                                 void *d_B, int ldb, long long int strideB,
+                                 void *d_A, int lda, int strideA,
+                                 void *d_B, int ldb, int strideB,
                                  void *beta,
-                                 void *d_C, int ldc, long long int strideC,
+                                 void *d_C, int ldc, int strideC,
                                  int batchcount,
                                  int dtype)
 {

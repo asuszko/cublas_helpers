@@ -4,6 +4,7 @@
 #include "cublasx_dgmm_batched.h"
 
 #define BLOCKSIZE 128
+const int bs = BLOCKSIZE;
 
 
 template <typename T>
@@ -13,7 +14,7 @@ __global__ void dgmmRbatched_kernel_L(T *data, const T* __restrict__ vec,
     unsigned long long iy = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned long long stride = gridDim.x * blockDim.x;
 
-    #pragma unroll BLOCKSIZE
+    #pragma unroll bs
     for(; iy < nrows; iy += stride) {
         for(int j=0; j < batchsize; ++j) {
             for(int i=0; i < ncols; ++i) {
@@ -31,7 +32,7 @@ __global__ void dgmmRbatched_kernel_R(T *data, const T* __restrict__ vec,
     unsigned long long iy = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned long long stride = gridDim.x * blockDim.x;
 
-    #pragma unroll BLOCKSIZE
+    #pragma unroll bs
     for(; iy < nrows; iy += stride) {
         for(int j=0; j < batchsize; ++j) {
             for(int i=0; i < ncols; ++i) {
@@ -49,7 +50,7 @@ __global__ void dgmmCbatched_kernel_L(T *data, const T* __restrict__ vec,
     unsigned long long iy = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned long long stride = gridDim.x * blockDim.x;
 
-    #pragma unroll BLOCKSIZE
+    #pragma unroll bs
     for(; iy < nrows; iy += stride) {
         for(int j=0; j < batchsize; ++j) {
             for(int i=0; i < ncols; ++i) {
@@ -72,7 +73,7 @@ __global__ void dgmmCbatched_kernel_R(T *data, const T* __restrict__ vec,
     unsigned long long iy = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned long long stride = gridDim.x * blockDim.x;
 
-    #pragma unroll BLOCKSIZE
+    #pragma unroll bs
     for(; iy < nrows; iy += stride) {
         for(int j=0; j < batchsize; ++j) {
             for(int i=0; i < ncols; ++i) {
