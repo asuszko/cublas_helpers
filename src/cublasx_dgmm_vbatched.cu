@@ -4,7 +4,7 @@
 #include "cublasx_dgmm_vbatched.h"
 
 #define BLOCKSIZE 128
-const int bs = BLOCKSIZE;
+const int bs = 128;
 
 
 template <typename T>
@@ -99,7 +99,7 @@ void cublasx_dgmm_vbatched(void *d_A,
                            int batch_size,
                            int dtype)
 {
-    dim3 blockSize(BLOCKSIZE);
+    dim3 blockSize(bs);
     int threads;
     if(mode == CUBLAS_SIDE_LEFT) {
         threads = m;

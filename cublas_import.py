@@ -20,7 +20,9 @@ __all__ = [
 import os
 from numpy.ctypeslib import ndpointer
 from ctypes import (c_int,
-                    c_void_p)
+                    c_uint64,
+                    c_void_p,
+                    c_bool)
 
 # Load the shared library
 from shared_utils import load_lib
@@ -92,7 +94,8 @@ argtype_defs = {
             ndpointer(),           #Ccalar used for multiplication
             c_void_p,              #Device pointer to matirx C
             c_int,                 #Leading dimension length of C
-            c_int],                #Data type identifier
+            c_int,                 #Data type identifier
+            c_bool],               #3m optimization flag
 
 
     "cublas_gemm_strided_batched" : [
@@ -105,16 +108,17 @@ argtype_defs = {
             ndpointer(),           #Scalar used for multiplication
             c_void_p,              #Device pointer to matirx A
             c_int,                 #Leading dimension length of A
-            c_int,                 #Stride of matrix A
+            c_uint64,              #Stride of matrix A
             c_void_p,              #Device pointer to matirx B
             c_int,                 #Leading dimension length of B
-            c_int,                 #Stride of matrix B
+            c_uint64,              #Stride of matrix B
             ndpointer(),           #Ccalar used for multiplication
             c_void_p,              #Device pointer to matirx C
             c_int,                 #Leading dimension length of C
-            c_int,                 #Stride of matrix C
+            c_uint64,              #Stride of matrix C
             c_int,                 #Batch size
-            c_int],                #Data type identifier
+            c_int,                 #Data type identifier
+            c_bool],               #3m optimization flag
 
 
     "cublas_init" : [],

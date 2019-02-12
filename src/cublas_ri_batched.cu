@@ -7,7 +7,7 @@
 
 void cublas_ri_batched(cublasHandle_t *handle,
                        int n,
-                       void *d_A[],
+                       const void *d_A[],
                        int *PivotArray,
                        void *d_C[],
                        int *infoArray,
@@ -18,11 +18,10 @@ void cublas_ri_batched(cublasHandle_t *handle,
 
         case 0:
         {
-            // float *ASptr = static_cast<float*>(*Aarray);
             gpuBlasErrchk(cublasSgetriBatched(*handle, n,
-                                              (const float **)d_A, n,
+                                              reinterpret_cast<const float**>(d_A), n,
                                               PivotArray,
-                                              (float **)d_C, n,
+                                              reinterpret_cast<float**>(d_C), n,
                                               infoArray,
                                               batchSize));
             break;
@@ -30,11 +29,10 @@ void cublas_ri_batched(cublasHandle_t *handle,
 
         case 1:
         {
-            // double *ADptr = static_cast<double*>(*Aarray);
             gpuBlasErrchk(cublasDgetriBatched(*handle, n,
-                                              (const double **)d_A, n,
+                                              reinterpret_cast<const double**>(d_A), n,
                                               PivotArray,
-                                              (double **)d_C, n,
+                                              reinterpret_cast<double**>(d_C), n,
                                               infoArray,
                                               batchSize));
             break;
@@ -42,11 +40,10 @@ void cublas_ri_batched(cublasHandle_t *handle,
         
         case 2:
         {
-            //float2 *ACptr = static_cast<float2*>(*Aarray);
             gpuBlasErrchk(cublasCgetriBatched(*handle, n,
-                                              (const float2 **)d_A, n,
+                                              reinterpret_cast<const float2**>(d_A), n,
                                               PivotArray,
-                                              (float2 **)d_C, n,
+                                              reinterpret_cast<float2**>(d_C), n,
                                               infoArray,
                                               batchSize));
             break;
@@ -54,11 +51,10 @@ void cublas_ri_batched(cublasHandle_t *handle,
         
         case 3:
         {
-            // double2 *AZptr = static_cast<double2*>(*Aarray);
             gpuBlasErrchk(cublasZgetriBatched(*handle, n,
-                                              (const double2 **)d_A, n,
+                                              reinterpret_cast<const double2**>(d_A), n,
                                               PivotArray,
-                                              (double2 **)d_C, n,
+                                              reinterpret_cast<double2**>(d_C), n,
                                               infoArray,
                                               batchSize));
             break;

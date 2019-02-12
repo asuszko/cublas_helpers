@@ -12,7 +12,7 @@ extern "C" {
 
     void DLL_EXPORT cublas_ri_batched(cublasHandle_t *handle,
                                       int n,
-                                      void *d_A[],
+                                      const void *d_A[],
                                       int *PivotArray,
                                       void *d_C[],
                                       int *infoArray,

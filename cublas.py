@@ -26,7 +26,8 @@ from cublas_import import (cublas_axpy,
 _blas_types = {np.dtype('f4'):0,
                np.dtype('f8'):1,
                np.dtype('c8'):2,
-               np.dtype('c16'):3}
+               np.dtype('c16'):3,
+               np.dtype('f2'):4}
 
 
 def check_vectors(x, y):
@@ -136,7 +137,7 @@ class cublas(object):
                      self.stream)
                 
 
-    def gemm(self, a, b, c, alpha=1, beta=0, OPA='N', OPB='N'):
+    def gemm(self, a, b, c, alpha=1., beta=0., OPA='N', OPB='N', m3m=False):
         """
         cuBLAS function gemm.
         
@@ -163,6 +164,11 @@ class cublas(object):
             
         OPB : str, optional
             CUBLAS_OP_N ('N') or CUBLAS_OP_T ('T') or CUBLAS_OP_C ('C')
+        
+        m3m : bool, optional
+            Use the Gaussian reduction optimization for complex 
+            type for a small speed boost. Only supported for complex float 
+            at this time.
         
         Notes
         -----
@@ -172,30 +178,35 @@ class cublas(object):
         check_vectors(a,b)
         check_vectors(b,c)
         
-        m = b.shape[1]
-        n, k = a.shape
+        m, n = c.shape[-2:]
+        k = a.shape[-1] if OPA == 'N' else a.shape[-2]
         
         if type(alpha) is not np.ndarray:
-            alpha = np.array(alpha, dtype=a.dtype)
+            alpha = np.array([alpha], dtype=a.dtype)
            
         if type(beta) is not np.ndarray:
-            beta = np.array(beta, dtype=a.dtype)
-        
+            beta = np.array([beta], dtype=a.dtype)
+
+        ldc = n
+        ldb = n if OPB == 'N' else k
+        lda = k if OPA == 'N' else m
+
         cublas_gemm(self.handle,
-                    {'N':0, 'T':1, 'C':2}[OPA],
                     {'N':0, 'T':1, 'C':2}[OPB],
-                    m, n, k,
+                    {'N':0, 'T':1, 'C':2}[OPA],
+                    n, m, k,
                     alpha,
-                    b.ptr, m,
-                    a.ptr, k,
+                    b.ptr, ldb,
+                    a.ptr, lda,
                     beta,
-                    c.ptr, m,
-                    _blas_types[a.dtype])
+                    c.ptr, ldc,
+                    _blas_types[a.dtype],
+                    m3m)
 
 
-    def gemm_strided_batched(self, a, b, c, alpha=1, beta=0, 
+    def gemm_strided_batched(self, a, b, c, alpha=1., beta=0., 
                              strideA=None, strideB=None, strideC=None,
-                             OPA='N', OPB='N'):
+                             OPA='N', OPB='N', m3m=False):
         """
         cuBLAS function gemm.
         
@@ -222,6 +233,11 @@ class cublas(object):
             
         OPB : str, optional
             CUBLAS_OP_N ('N') or CUBLAS_OP_T ('T') or CUBLAS_OP_C ('C')
+            
+        m3m : bool, optional
+            Use the Gaussian reduction optimization for complex 
+            type for a small speed boost. Only supported for complex float 
+            at this time.
         
         Notes
         -----
@@ -260,7 +276,8 @@ class cublas(object):
                 beta,
                 c.ptr, ldc, strideC,
                 batch_size,
-                _blas_types[a.dtype])
+                _blas_types[a.dtype],
+                m3m)
         
 
     def nrm2(self, x, xinc=1, n=None):

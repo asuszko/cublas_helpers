@@ -3,7 +3,7 @@
 #include "cublasx_diag.h"
 
 #define BLOCKSIZE 128
-const int bs = BLOCKSIZE;
+const int bs = 128;
 
 template <typename T>
 __global__ void diag_kernel_R(T *data, int nrows, int ncols, int batchsize)
@@ -50,7 +50,7 @@ void cublasx_diag(void *d_ptr,
                   int dtype,
                   cudaStream_t *stream)
 {
-    dim3 blockSize(BLOCKSIZE);
+    dim3 blockSize(bs);
     dim3 gridSize((((m*n-1)/blockSize.x+1)-1)/blockSize.x+1);
     
     cudaStream_t stream_id;

@@ -17,9 +17,8 @@ void cublas_rf_batched(cublasHandle_t *handle,
 
         case 0:
         {
-            // float *ASptr = static_cast<float*>(*Aarray);
             gpuBlasErrchk(cublasSgetrfBatched(*handle, n, 
-                                              (float**)Aarray, n, 
+                                              reinterpret_cast<float**>(Aarray), n, 
                                               PivotArray,
                                               infoArray,
                                               batchSize));
@@ -28,9 +27,8 @@ void cublas_rf_batched(cublasHandle_t *handle,
 
         case 1:
         {
-            // double *ADptr = static_cast<double*>(*Aarray);
             gpuBlasErrchk(cublasDgetrfBatched(*handle, n, 
-                                              (double**)Aarray, n, 
+                                              reinterpret_cast<double**>(Aarray), n, 
                                               PivotArray,
                                               infoArray,
                                               batchSize));
@@ -39,9 +37,8 @@ void cublas_rf_batched(cublasHandle_t *handle,
         
         case 2:
         {
-            //float2 *ACptr = static_cast<float2*>(*Aarray);
             gpuBlasErrchk(cublasCgetrfBatched(*handle, n, 
-                                              (float2**)Aarray, n, 
+                                              reinterpret_cast<float2**>(Aarray), n, 
                                               PivotArray,
                                               infoArray,
                                               batchSize));
@@ -50,9 +47,8 @@ void cublas_rf_batched(cublasHandle_t *handle,
         
         case 3:
         {
-            // double2 *AZptr = static_cast<double2*>(*Aarray);
             gpuBlasErrchk(cublasZgetrfBatched(*handle, n, 
-                                              (double2**)Aarray, n, 
+                                              reinterpret_cast<double2**>(Aarray), n, 
                                               PivotArray,
                                               infoArray,
                                               batchSize));
